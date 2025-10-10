@@ -34,4 +34,10 @@ The program will output the anchor node selected in each greedy iteration along 
 ## 5. Dependencies
 - C++11 or later
 
+## 6. Neo4j Integration 
+
+
+
+The demo/ directory contains the local Neo4j integration implementation code.
+neo4jTest.txt includes partial Cypher statements for implementing the anchoring functionality.
 ---
