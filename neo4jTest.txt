@@ -1,0 +1,78 @@
+//载入图数据，有表头
+LOAD CSV WITH HEADERS FROM 'file:///edges.csv' AS row
+WITH toInteger(row.id1) AS src, toInteger(row.id2) AS dst
+MERGE (u:Node {id: src})
+MERGE (v:Node {id: dst})
+MERGE (u)-[:LINK]->(v);
+
+//显示整个视图
+MATCH (n:Node)
+OPTIONAL MATCH (n)-[r:LINK]->(m:Node)
+RETURN n, r, m;
+
+
+//创建节点属性并标记每个节点的所在的k_l的属性，
+LOAD CSV WITH HEADERS FROM 'file:///coreness.csv' AS row
+WITH row
+WHERE row.k IS NOT NULL AND row.l IS NOT NULL
+MERGE (n:Node {id: toInteger(row.id)})
+SET n.kl = coalesce(n.kl, []) + [trim(toString(row.k)) + "_" + trim(toString(row.l))];
+
+
+//查询图中满足(1,4)-core的节点
+MATCH (n:Node)-[r:LINK]->(m:Node)
+WHERE "1_4" IN n.kl AND "1_4" IN m.kl
+RETURN n, r, m;
+
+
+---------------------------
+// Step 1: 载入 CSV 文件
+LOAD CSV WITH HEADERS FROM 'file:///AF.csv' AS row
+
+// Step 2: 按类型分类读取
+WITH row
+WHERE row.type CONTAINS 'anchor' OR row.type CONTAINS 'follower'
+
+// Step 3: 聚合 anchor 和 follower
+WITH collect(CASE WHEN row.type CONTAINS 'anchor' THEN row.id_list END)[0] AS anchorId,
+     collect(CASE WHEN row.type CONTAINS 'follower' THEN row.id_list END)[0] AS followerList
+
+// Step 4: 处理 anchor
+WITH toInteger(anchorId) AS anchorId, split(followerList, ' ') AS followers
+MATCH (a:Node {id: anchorId})
+SET a.role = 'anchor',
+    a.color = '#FF0000'
+
+// Step 5: 处理 followers
+WITH a, followers
+UNWIND followers AS fid
+MATCH (f:Node {id: toInteger(fid)})
+SET f.role = 'follower',
+    f.color = '#0000FF'
+
+// Step 6: 创建关系（可选）
+MERGE (a)-[:FOLLOW]->(f)
+RETURN a.id AS anchor, collect(f.id) AS followers;
+
+
+-----------------
+//验证跟随者和节点直接的关系
+MATCH (a:Node {role: 'anchor'})-[r:FOLLOW]->(f:Node {role: 'follower'})
+RETURN a.id AS anchor, collect(f.id) AS followers;
+
+
+
+//显示查询结果
+MATCH (n:Node)-[r:LINK]->(m:Node) WHERE "1_4" IN n.kl AND "1_4" IN m.kl RETURN n, r, m;
+
+MATCH (n:Node)-[r:LINK]->(m:Node) WHERE "1_4" IN n.kl AND "1_4" IN m.kl OR ((n.role = 'anchor' OR n.role = 'follower') or (m.role = 'anchor' OR m.role = 'follower')) RETURN n, r, m;
+-------------------
+
+//删除图信息
+MATCH (n) DETACH DELETE n;
+
+
+//删除投影
+
+CALL gds.graph.drop('testGraph') YIELD graphName;
+
