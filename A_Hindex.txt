@@ -25,6 +25,3 @@
 8	5
 8	6
 0   1
-
-# Distributed D-core Decomposition over Large Directed Graphs 中的figure1
-# E:\AAwork\paper\图计算\时序、锚定、k-core\kcore-truss\Distributed D-core Decomposition over Large Directed Graphs.pdf
