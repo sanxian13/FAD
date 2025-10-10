@@ -5,15 +5,15 @@
 #include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/resource.h>
 #include <map>
-
+#include <string>
 #include <unordered_set>
 #include <algorithm>
 #include <queue>
 #include <functional>
 #include <climits>
 #include <chrono>
+#include <iomanip>
 using namespace std;
 
 #define INITIAL -1
@@ -32,7 +32,6 @@ vector<bool> inCoreStorageInitKInitL;
 vector<bool> inCoreStorageMaxKMaxL;
 vector<int> tempInitialOutDegree_init;
 vector<int> tempInitialOutDegree_max;
-
 vector<int> tempInitialInDegree_init;
 vector<int> tempInitialInDegree_max;
 
@@ -86,14 +85,12 @@ struct DSU
 
     DSU(int n)
     {
-
         rank.resize(n, 0);
         parentToChildren.resize(n);
         parent.resize(n);
         for (int i = 0; i < n; ++i)
         {
             parent[i] = i;
-
             parentToChildren[i].push_back(i);
         }
     }
@@ -123,7 +120,6 @@ struct DSU
             {
                 parent[rootV] = rootU;
                 parentToChildren[rootU].insert(parentToChildren[rootU].end(), parentToChildren[rootV].begin(), parentToChildren[rootV].end());
-
                 parentToChildren[rootV].clear();
             }
             else if (rank[rootU] < rank[rootV])
@@ -136,7 +132,6 @@ struct DSU
             {
                 parent[rootV] = rootU;
                 parentToChildren[rootU].insert(parentToChildren[rootU].end(), parentToChildren[rootV].begin(), parentToChildren[rootV].end());
-
                 parentToChildren[rootV].clear();
                 rank[rootU]++;
             }
@@ -193,6 +188,7 @@ vector<int> previous_cAnchore_Set;
 unordered_map<int, vector<int>> previous_Anchore_Follow;
 vector<bool> previous_delete_info_isTrue;
 DSU dsuPrevious;
+
 vector<vector<int>> previous_cA_cAoutNV;
 vector<vector<int>> cA_cAoutNV;
 
@@ -280,17 +276,14 @@ void readGraphFromFile(const string &filename, unordered_map<int, int> &nodeMapp
 
 void pruneCore(int k, int l, vector<int> &outDegree, vector<int> &inDegree, vector<bool> &inCore)
 {
-
     queue<int> q;
 
     for (int i = 0; i < G.V; ++i)
     {
-
         if (anchor_tag[i])
             continue;
         if (inCore[i] && (outDegree[i] < k || inDegree[i] < l))
         {
-
             q.push(i);
             inCore[i] = false;
         }
@@ -300,7 +293,6 @@ void pruneCore(int k, int l, vector<int> &outDegree, vector<int> &inDegree, vect
     {
         int v = q.front();
         q.pop();
-
         for (int u : G.adj[v])
         {
             if (anchor_tag[u])
@@ -315,7 +307,6 @@ void pruneCore(int k, int l, vector<int> &outDegree, vector<int> &inDegree, vect
                 }
             }
         }
-
         for (int u : G.revAdj[v])
         {
             if (anchor_tag[u])
@@ -332,9 +323,9 @@ void pruneCore(int k, int l, vector<int> &outDegree, vector<int> &inDegree, vect
         }
     }
 }
+
 void pruneCorek_1(int k, int l)
 {
-
     vector<bool> inCore = inCoreStorageInitKInitL;
     vector<int> outDegree;
     outDegree = tempInitialOutDegree_init;
@@ -355,7 +346,6 @@ void pruneCorek_1(int k, int l)
 
     while (!q.empty())
     {
-
         int v = q.front();
         q.pop();
         for (int u : G.adj[v])
@@ -398,6 +388,7 @@ void pruneCorek_1(int k, int l)
         }
     }
 }
+
 void pruneCorel_1(int k, int l)
 {
     vector<bool> inCore = inCoreStorageInitKInitL;
@@ -420,7 +411,6 @@ void pruneCorel_1(int k, int l)
 
     while (!q.empty())
     {
-
         int v = q.front();
         q.pop();
         for (int u : G.adj[v])
@@ -466,7 +456,6 @@ void pruneCorel_1(int k, int l)
 
 vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree, vector<bool> inCore, ShellOrderInfo &shell_KL_1_info)
 {
-
     DSU dsu(G.V);
     shell_KL_1_info.dsu = dsu;
     shell_KL_1_info.layerNum = 0;
@@ -490,7 +479,6 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
             shell_KL_1_info.id2order[i] = layer_loca;
             shell_KL_1_info.id2layerNum[i] = shell_KL_1_info.layerNum;
             shell_KL_1_info.delete_info_isTrue[i] = true;
-
             layer_loca++;
         }
     }
@@ -508,7 +496,6 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
 
     while (!q.empty())
     {
-
         qs--;
         int v = q.front();
         q.pop();
@@ -534,7 +521,6 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
                     shell_KL_1_info.delete_info_isTrue[u] = true;
                     shell_KL_1_info.id2order[u] = layer_loca;
                     shell_KL_1_info.id2layerNum[u] = shell_KL_1_info.layerNum;
-
                     layer_loca++;
                 }
             }
@@ -561,7 +547,6 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
                     shell_KL_1_info.delete_info_isTrue[u] = true;
                     shell_KL_1_info.id2order[u] = layer_loca;
                     shell_KL_1_info.id2layerNum[u] = shell_KL_1_info.layerNum;
-
                     layer_loca++;
                 }
             }
@@ -569,12 +554,10 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
 
         if (q.size() == 0)
         {
-
             break;
         }
         if (qs == 0)
         {
-
             shell_KL_1_info.layerNum++;
             shell_KL_1_info.layerEnd_loca.push_back(layer_loca);
             qs = q.size();
@@ -582,12 +565,12 @@ vector<int> pruneCore1(int k, int l, vector<int> outDegree, vector<int> inDegree
     }
 
     inCoreStorageMaxKMaxL = inCore;
-
     return shell_KL_1_info.delete_shell_order;
 }
 
 vector<int> orderKL;
 ShellOrderInfo shell_KL_1_info;
+
 void bliudSC()
 {
     orderKL.clear();
@@ -632,7 +615,6 @@ int max_FollowerNum = -1;
 
 void computeUpNum(int vOrder)
 {
-
     for (auto isAddV : cA_Nv_set[vOrder])
     {
         cA_upper_Set[vOrder].insert(cA_upper_Set[outNVnode2orderSet.at(isAddV)].begin(), cA_upper_Set[outNVnode2orderSet.at(isAddV)].end());
@@ -640,208 +622,6 @@ void computeUpNum(int vOrder)
     }
     cA_MaxFNum_Set[vOrder] = cA_upper_Set[vOrder].size();
 }
-
-// void computeUpNum(int vOrder)
-// {
-
-//     std::sort(cA_Nv_set[vOrder].begin(), cA_Nv_set[vOrder].end(), [&](int a, int b)
-//               { return shell_KL_1_info.id2layerNum[a] < shell_KL_1_info.id2layerNum[b]; });
-//     vector<int> n1;                       // 一跳邻居
-//     for (auto isAddV : cA_Nv_set[vOrder]) // 判断节点v 是不是 比他小的order的邻居
-//     {
-//         for (auto cv : cA_Nv_set[vOrder])
-//         {
-
-//             if (shell_KL_1_info.id2layerNum[cv] >= shell_KL_1_info.id2layerNum[isAddV])
-//             {
-//                 n1.push_back(isAddV);
-//                 goto cUVNR_continue1;
-//             }
-//             else
-//             {
-//                 int cvOrder = outNVnode2orderSet.at(cv);
-//                 for (auto nv : cA_Nv_set[cvOrder])
-//                 {
-//                     if (nv == isAddV)
-//                     {
-//                         goto cUVNR_continue1;
-//                     }
-//                 }
-//             }
-//         }
-//         n1.push_back(isAddV);
-
-//     cUVNR_continue1:
-//         continue;
-//     }
-
-//     vector<int> n2; // 二跳邻居
-//     for (auto isAddV : n1)
-//     {
-//         for (auto cv : cA_Nv_set[outNVnode2orderSet.at(isAddV)])
-//         {
-//             n2.push_back(cv);
-//         }
-//     }
-//     // 使用 std::set 去重
-//     std::set<int> n2Set(n2.begin(), n2.end());
-//     n2.clear();
-//     n2.assign(n2Set.begin(), n2Set.end());
-//     // 排序
-//     std::sort(n2.begin(), n2.end(), [&](int a, int b)
-//               { return shell_KL_1_info.id2layerNum[a] < shell_KL_1_info.id2layerNum[b]; });
-//     std::unordered_set<int> n2UnorderedSet(n2.begin(), n2.end());
-//     for (auto nV : n2UnorderedSet)
-//     {
-//         for (auto cv : cA_Nv_set[outNVnode2orderSet.at(nV)])
-//         {
-//             n2UnorderedSet.erase(cv);
-//         }
-//     }
-//     for (auto nv : n2UnorderedSet)
-//     {
-//         cA_MaxFNum_Set[vOrder] += cA_MaxFNum_Set[outNVnode2orderSet.at(nv)];
-//     }
-//     cA_MaxFNum_Set[vOrder] += n1.size();
-//     cA_MaxFNum_Set[vOrder] += n2UnorderedSet.size();
-
-//     int upvn = INITMAX;
-//     if (vOrder >= orderKL.size())
-//     {
-//         upvn = orderKL.size();
-//     }
-//     else
-//     {
-
-//         int originvvID = shell_KL_1_info.delete_shell_order[vOrder];
-//         upvn = shell_KL_1_info.layerEnd_loca[shell_KL_1_info.layerNum - 1] - shell_KL_1_info.layerEnd_loca[shell_KL_1_info.id2layerNum[originvvID]]; // vOrder其所有上层的顶点数
-//         // upvn = shell_KL_1_info.layerEnd_loca[shell_KL_1_info.layerNum - 1] - shell_KL_1_info.layerEnd_loca[shell_KL_1_info.id2layerNum[vOrder]]; // vOrder其所有上层的顶点数
-//     }
-
-//     if (upvn < cA_MaxFNum_Set[vOrder]) // 上层节点数小于 预估的跟随者数
-//     {
-//         cA_MaxFNum_Set[vOrder] = upvn;
-//     }
-//     // cout << vOrder << "上层顶点数：" << upvn << " 计算顶点数：" << cA_MaxFNum_Set[vOrder] << endl;
-// }
-
-// void computeUpNum(int vOrder) // 原本版本
-// {
-
-//     std::sort(cA_Nv_set[vOrder].begin(), cA_Nv_set[vOrder].end(), [&](int a, int b)
-//               { return shell_KL_1_info.id2layerNum[a] < shell_KL_1_info.id2layerNum[b]; });
-//     for (auto isAddV : cA_Nv_set[vOrder]) // 判断节点v 是不是 比他小的order的邻居
-//     {
-//         for (auto cv : cA_Nv_set[vOrder])
-//         {
-
-//             if (shell_KL_1_info.id2layerNum[cv] >= shell_KL_1_info.id2layerNum[isAddV])
-//             {
-//                 cA_MaxFNum_Set[vOrder] += cA_MaxFNum_Set[outNVnode2orderSet.at(isAddV)] + 1;
-//                 goto cUVNR_continue1;
-//             }
-//             else
-//             {
-//                 int cvOrder = outNVnode2orderSet.at(cv);
-//                 for (auto nv : cA_Nv_set[cvOrder])
-//                 {
-//                     if (nv == isAddV)
-//                     {
-//                         goto cUVNR_continue1;
-//                     }
-//                 }
-//             }
-//         }
-//         cA_MaxFNum_Set[vOrder] += cA_MaxFNum_Set[outNVnode2orderSet.at(isAddV)] + 1;
-//         // dsu.unite(cAnchore_Set[vOrder], isAddV);
-//     cUVNR_continue1:
-//         continue;
-//     }
-
-//     int upvn = INITMAX;
-//     if (vOrder >= orderKL.size())
-//     {
-//         upvn = orderKL.size();
-//     }
-//     else
-//     {
-
-//         int originvvID = shell_KL_1_info.delete_shell_order[vOrder];
-//         upvn = shell_KL_1_info.layerEnd_loca[shell_KL_1_info.layerNum - 1] - shell_KL_1_info.layerEnd_loca[shell_KL_1_info.id2layerNum[originvvID]]; // vOrder其所有上层的顶点数
-//         // upvn = shell_KL_1_info.layerEnd_loca[shell_KL_1_info.layerNum - 1] - shell_KL_1_info.layerEnd_loca[shell_KL_1_info.id2layerNum[vOrder]]; // vOrder其所有上层的顶点数
-//     }
-
-//     if (upvn < cA_MaxFNum_Set[vOrder]) // 上层节点数小于 预估的跟随者数
-//     {
-
-//         cA_MaxFNum_Set[vOrder] = upvn;
-//     }
-//     // cout << vOrder << "上层顶点数：" << upvn << " 计算顶点数：" << cA_MaxFNum_Set[vOrder] << endl;
-// }
-// void computeUpNum(int vOrder)
-// {
-//     // 排序 cA_Nv_set[vOrder] 按照 id2layerNum 的值
-//     auto &currentSet = cA_Nv_set[vOrder];
-//     std::sort(currentSet.begin(), currentSet.end(), [&](int a, int b)
-//               { return shell_KL_1_info.id2layerNum[a] < shell_KL_1_info.id2layerNum[b]; });
-
-//     // 计算上层节点数 upvn
-//     int upvn = INITMAX;
-//     if (vOrder >= orderKL.size())
-//     {
-//         upvn = orderKL.size();
-//     }
-//     else
-//     {
-//         int originvvID = shell_KL_1_info.delete_shell_order[vOrder];
-//         upvn = shell_KL_1_info.layerEnd_loca[shell_KL_1_info.layerNum - 1] -
-//                shell_KL_1_info.layerEnd_loca[shell_KL_1_info.id2layerNum[originvvID]];
-//     }
-
-//     // 提前构建查找表，用于快速查找
-//     std::unordered_set<int> currentSetSet(currentSet.begin(), currentSet.end());
-//     std::unordered_map<int, std::unordered_set<int>> neighborSets;
-
-//     for (int cv : currentSet)
-//     {
-//         int cvOrder = outNVnode2orderSet.at(cv);
-//         neighborSets[cvOrder].insert(cA_Nv_set[cvOrder].begin(), cA_Nv_set[cvOrder].end());
-//     }
-
-//     // 遍历 currentSet，更新 cA_MaxFNum_Set[vOrder]
-//     int currentLayerNum = shell_KL_1_info.id2layerNum[shell_KL_1_info.delete_shell_order[vOrder]];
-//     for (int isAddV : currentSet)
-//     {
-//         bool shouldAdd = false;
-//         for (int cv : currentSet)
-//         {
-//             if (shell_KL_1_info.id2layerNum[cv] >= shell_KL_1_info.id2layerNum[isAddV])
-//             {
-//                 shouldAdd = true;
-//                 break;
-//             }
-//             else
-//             {
-//                 int cvOrder = outNVnode2orderSet.at(cv);
-//                 if (neighborSets[cvOrder].count(isAddV))
-//                 {
-//                     shouldAdd = true;
-//                     break;
-//                 }
-//             }
-//         }
-//         if (shouldAdd)
-//         {
-//             cA_MaxFNum_Set[vOrder] += cA_MaxFNum_Set[outNVnode2orderSet.at(isAddV)] + 1;
-//         }
-//     }
-
-//     // 如果上层节点数小于预估的跟随者数，则更新 cA_MaxFNum_Set[vOrder]
-//     if (upvn < cA_MaxFNum_Set[vOrder])
-//     {
-//         cA_MaxFNum_Set[vOrder] = upvn;
-//     }
-// }
 
 void computeUpShell(int &maxFollSum)
 {
@@ -875,7 +655,6 @@ void computeUpShell(int &maxFollSum)
 
         for (auto it = shell_order.rbegin(); it != shell_order.rend(); it++)
         {
-
             int v = *it;
             vOrder = shell_KL_1_info.id2order[v];
             IscAnchore_Set[v] = true;
@@ -886,7 +665,6 @@ void computeUpShell(int &maxFollSum)
                 continue;
             }
             int perVorder = previous_outNVnode2orderSet.at(v);
-
             int vPreviousRoot = dsuPrevious.find(v);
             if (rootPerviousAV != vPreviousRoot && perVorder < previous_KL_1_SUM)
             {
@@ -906,7 +684,6 @@ void computeUpShell(int &maxFollSum)
 
                     if (shell_KL_1_info.delete_info_isTrue[nv])
                     {
-
                         if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                         {
                             cA_Nv_set[vOrder].push_back(nv);
@@ -916,7 +693,6 @@ void computeUpShell(int &maxFollSum)
 
                 for (auto nv : G.revAdj[v])
                 {
-
                     if (inCoreStorageMaxKMaxL[nv] || anchor_tag[nv] || isAffected[nv])
                     {
                         continue;
@@ -924,7 +700,6 @@ void computeUpShell(int &maxFollSum)
 
                     if (shell_KL_1_info.delete_info_isTrue[nv])
                     {
-
                         if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                         {
                             if (find(cA_Nv_set[vOrder].begin(), cA_Nv_set[vOrder].end(), nv) == cA_Nv_set[vOrder].end())
@@ -948,12 +723,10 @@ void computeUpShell(int &maxFollSum)
 
             for (auto cnv : previous_cA_Nv_set[i])
             {
-
                 if (!inCoreStorageMaxKMaxL[cnv])
                 {
-
                     int cnvOrder = shell_KL_1_info.id2order[cnv];
-                    cA_cAoutNV[cnvOrder].push_back(previous_cAnchore_Set[i]);
+                    cA_cAoutNV[cnvOrder].push_back(oV);
                     temp_cA_Nv_set.push_back(cnv);
                 }
             }
@@ -968,7 +741,6 @@ void computeUpShell(int &maxFollSum)
             cA_MaxFNum_Set.push_back(0);
             cA_upper_Set.push_back(std::set<int>());
             outNVnode2orderSet.insert({oV, orderLen + out_CAnchoreSize});
-
             computeUpNum(orderLen + out_CAnchoreSize);
             tempMaxFv = max(tempMaxFv, cA_MaxFNum_Set[orderLen + out_CAnchoreSize]);
             out_CAnchoreSize++;
@@ -976,16 +748,11 @@ void computeUpShell(int &maxFollSum)
     }
     else if (maxCA == -1)
     {
-
         for (auto it = shell_order.rbegin(); it != shell_order.rend(); it++)
         {
-
             int v = *it;
-
             IscAnchore_Set[v] = true;
-
             vOrder = shell_KL_1_info.id2order[v];
-
             int vLayerNum = shell_KL_1_info.id2layerNum[v];
             if (anchor_tag[v] || isAffected[v])
             {
@@ -999,25 +766,20 @@ void computeUpShell(int &maxFollSum)
 
             for (auto nv : G.adj[v])
             {
-
                 if (inCoreStorageMaxKMaxL[nv] || anchor_tag[nv] || isAffected[nv])
                 {
-
                     continue;
                 }
 
                 if (shell_KL_1_info.delete_info_isTrue[nv])
                 {
-
                     if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                     {
                         cA_Nv_set[vOrder].push_back(nv);
                     }
                 }
-
                 else if (!incore[nv])
                 {
-
                     if (!IscAnchore_Set[nv])
                     {
                         if (find(G.revAdj[v].begin(), G.revAdj[v].end(), nv) != G.revAdj[v].end())
@@ -1025,9 +787,7 @@ void computeUpShell(int &maxFollSum)
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1037,9 +797,7 @@ void computeUpShell(int &maxFollSum)
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1047,38 +805,41 @@ void computeUpShell(int &maxFollSum)
                     }
                     else
                     {
-                        cA_cAoutNV[vOrder].push_back(nv);
-                        nvOrder = outNVnode2orderSet.at(nv);
-                        cA_Nv_set[nvOrder].push_back(v);
+                        if (find(G.revAdj[v].begin(), G.revAdj[v].end(), nv) != G.revAdj[v].end())
+                        {
+                            cA_cAoutNV[vOrder].push_back(nv);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            cA_Nv_set[nvOrder].push_back(v);
+                        }
+                        else if (k_1shell[v])
+                        {
+                            cA_cAoutNV[vOrder].push_back(nv);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            cA_Nv_set[nvOrder].push_back(v);
+                        }
                     }
                 }
             }
 
             for (auto nv : G.revAdj[v])
             {
-
                 if (anchor_tag[nv] || isAffected[nv] || inCoreStorageMaxKMaxL[nv])
                 {
-
                     continue;
                 }
 
                 if (shell_KL_1_info.delete_info_isTrue[nv])
                 {
-
                     if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                     {
-
                         if (find(cA_Nv_set[vOrder].begin(), cA_Nv_set[vOrder].end(), nv) == cA_Nv_set[vOrder].end())
                         {
-
                             cA_Nv_set[vOrder].push_back(nv);
                         }
                     }
                 }
                 else if (!incore[nv])
                 {
-
                     if (!IscAnchore_Set[nv])
                     {
                         if (l_1shell[v])
@@ -1086,9 +847,7 @@ void computeUpShell(int &maxFollSum)
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1096,16 +855,18 @@ void computeUpShell(int &maxFollSum)
                     }
                     else
                     {
-                        if (find(cA_cAoutNV[vOrder].begin(), cA_cAoutNV[vOrder].end(), nv) == cA_cAoutNV[vOrder].end())
+                        if (l_1shell[v])
                         {
-                            cA_cAoutNV[vOrder].push_back(nv);
-                        }
+                            if (find(cA_cAoutNV[vOrder].begin(), cA_cAoutNV[vOrder].end(), nv) == cA_cAoutNV[vOrder].end())
+                            {
+                                cA_cAoutNV[vOrder].push_back(nv);
+                            }
 
-                        nvOrder = outNVnode2orderSet.at(nv);
-
-                        if (cA_Nv_set[nvOrder].back() != v)
-                        {
-                            cA_Nv_set[nvOrder].push_back(v);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            if (cA_Nv_set[nvOrder].back() != v)
+                            {
+                                cA_Nv_set[nvOrder].push_back(v);
+                            }
                         }
                     }
                 }
@@ -1117,7 +878,6 @@ void computeUpShell(int &maxFollSum)
 
         for (int i = orderLen; i < cAnchore_Set.size(); i++)
         {
-
             computeUpNum(i);
             tempMaxFv = max(tempMaxFv, cA_MaxFNum_Set[i]);
         }
@@ -1126,12 +886,9 @@ void computeUpShell(int &maxFollSum)
     {
         for (auto it = shell_order.rbegin(); it != shell_order.rend(); it++)
         {
-
             int v = *it;
             IscAnchore_Set[v] = true;
-
             vOrder = shell_KL_1_info.id2order[v];
-
             int vLayerNum = shell_KL_1_info.id2layerNum[v];
             if (anchor_tag[v] || isAffected[v])
             {
@@ -1148,9 +905,7 @@ void computeUpShell(int &maxFollSum)
             if (previous_delete_info_isTrue[v] &&
                 find(previous_dsuRootSetOut.begin(),
                      previous_dsuRootSetOut.end(), vPreviousRoot) == previous_dsuRootSetOut.end())
-
             {
-
                 int perVorder = previous_outNVnode2orderSet.at(v);
                 cA_MaxFNum_Set[vOrder] = previous_cA_MaxFNum_Set[perVorder];
                 cA_upper_Set[vOrder] = previous_cA_upper_Set[perVorder];
@@ -1160,64 +915,49 @@ void computeUpShell(int &maxFollSum)
 
                 for (auto caOV : previous_cA_cAoutNV[perVorder])
                 {
-
                     cA_cAoutNV[vOrder].push_back(caOV);
                     if (!IscAnchore_Set[caOV])
                     {
-
                         IscAnchore_Set[caOV] = true;
                         outNVnode2orderSet.insert({caOV, cAnchore_Set.size()});
-
                         cAnchore_Set.push_back(caOV);
-
                         cA_MaxFNum_Set.push_back(0);
                         cA_upper_Set.push_back(std::set<int>());
                         cA_Nv_set.push_back({v});
                     }
                     else
                     {
-
                         int caOVOrder = outNVnode2orderSet.at(caOV);
                         cA_Nv_set[caOVOrder].push_back(v);
                     }
                 }
-
                 continue;
             }
 
             for (auto nv : G.adj[v])
             {
-
                 if (inCoreStorageMaxKMaxL[nv] || anchor_tag[nv] || isAffected[nv])
                 {
-
                     continue;
                 }
 
                 if (shell_KL_1_info.delete_info_isTrue[nv])
                 {
-
                     if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                     {
-
                         cA_Nv_set[vOrder].push_back(nv);
                     }
                 }
-
                 else if (!incore[nv])
                 {
-
                     if (!IscAnchore_Set[nv])
                     {
-
                         if (find(G.revAdj[v].begin(), G.revAdj[v].end(), nv) != G.revAdj[v].end())
                         {
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1227,9 +967,7 @@ void computeUpShell(int &maxFollSum)
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1237,19 +975,26 @@ void computeUpShell(int &maxFollSum)
                     }
                     else
                     {
-                        cA_cAoutNV[vOrder].push_back(nv);
-                        nvOrder = outNVnode2orderSet.at(nv);
-                        cA_Nv_set[nvOrder].push_back(v);
+                        if (find(G.revAdj[v].begin(), G.revAdj[v].end(), nv) != G.revAdj[v].end())
+                        {
+                            cA_cAoutNV[vOrder].push_back(nv);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            cA_Nv_set[nvOrder].push_back(v);
+                        }
+                        else if (k_1shell[v])
+                        {
+                            cA_cAoutNV[vOrder].push_back(nv);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            cA_Nv_set[nvOrder].push_back(v);
+                        }
                     }
                 }
             }
 
             for (auto nv : G.revAdj[v])
             {
-
                 if (anchor_tag[nv] || isAffected[nv] || inCoreStorageMaxKMaxL[nv])
                 {
-
                     continue;
                 }
 
@@ -1257,7 +1002,6 @@ void computeUpShell(int &maxFollSum)
                 {
                     if (vLayerNum < shell_KL_1_info.id2layerNum[nv])
                     {
-
                         if (find(cA_Nv_set[vOrder].begin(), cA_Nv_set[vOrder].end(), nv) == cA_Nv_set[vOrder].end())
                         {
                             cA_Nv_set[vOrder].push_back(nv);
@@ -1273,9 +1017,7 @@ void computeUpShell(int &maxFollSum)
                             cA_cAoutNV[vOrder].push_back(nv);
                             IscAnchore_Set[nv] = true;
                             outNVnode2orderSet.insert({nv, cAnchore_Set.size()});
-
                             cAnchore_Set.push_back(nv);
-
                             cA_MaxFNum_Set.push_back(0);
                             cA_upper_Set.push_back(std::set<int>());
                             cA_Nv_set.push_back({v});
@@ -1283,16 +1025,18 @@ void computeUpShell(int &maxFollSum)
                     }
                     else
                     {
-                        if (find(cA_cAoutNV[vOrder].begin(), cA_cAoutNV[vOrder].end(), nv) == cA_cAoutNV[vOrder].end())
+                        if (l_1shell[v])
                         {
-                            cA_cAoutNV[vOrder].push_back(nv);
-                        }
+                            if (find(cA_cAoutNV[vOrder].begin(), cA_cAoutNV[vOrder].end(), nv) == cA_cAoutNV[vOrder].end())
+                            {
+                                cA_cAoutNV[vOrder].push_back(nv);
+                            }
 
-                        nvOrder = outNVnode2orderSet.at(nv);
-
-                        if (cA_Nv_set[nvOrder].back() != v)
-                        {
-                            cA_Nv_set[nvOrder].push_back(v);
+                            nvOrder = outNVnode2orderSet.at(nv);
+                            if (cA_Nv_set[nvOrder].back() != v)
+                            {
+                                cA_Nv_set[nvOrder].push_back(v);
+                            }
                         }
                     }
                 }
@@ -1304,7 +1048,6 @@ void computeUpShell(int &maxFollSum)
 
         for (int i = orderLen; i < cAnchore_Set.size(); i++)
         {
-
             computeUpNum(i);
             tempMaxFv = max(tempMaxFv, cA_MaxFNum_Set[i]);
         }
@@ -1326,16 +1069,13 @@ queue<int> deleteUnavlueFollowerLoca;
 
 void deleteF(vector<int> sl_out, vector<int> sl_in)
 {
-
     {
         for (auto nv : sl_out)
         {
-
             if (anchor_tag[nv] || isAffected[nv])
             {
                 continue;
             }
-
             else if (isTempFollowerSet[nv] > -1)
             {
                 {
@@ -1345,7 +1085,6 @@ void deleteF(vector<int> sl_out, vector<int> sl_in)
                         deleteUnavlueFollowerLoca.push(isTempFollowerSet[nv]);
                         isTempFollowerSet[nv] = -2;
                         deleteUnavlueFollower.push(nv);
-
                         tempF_real_num--;
                     }
                 }
@@ -1355,7 +1094,6 @@ void deleteF(vector<int> sl_out, vector<int> sl_in)
     {
         for (auto nv : sl_in)
         {
-
             if (anchor_tag[nv] || isAffected[nv])
             {
                 continue;
@@ -1366,11 +1104,9 @@ void deleteF(vector<int> sl_out, vector<int> sl_in)
                     tempOutDegree[nv]--;
                     if (tempOutDegree[nv] < maxK)
                     {
-
                         deleteUnavlueFollowerLoca.push(isTempFollowerSet[nv]);
                         isTempFollowerSet[nv] = -2;
                         deleteUnavlueFollower.push(nv);
-
                         tempF_real_num--;
                     }
                 }
@@ -1401,7 +1137,6 @@ bool computeFollower(int cA)
 
     if (IscAnchore_Set[cA])
     {
-
         cAorder = outNVnode2orderSet.at(cA);
         currentMaxF = cA_MaxFNum_Set[cAorder];
 
@@ -1492,9 +1227,7 @@ bool computeFollower(int cA)
                         }
                         else if (isTempFollowerSet[nv] == -1 && shell_KL_1_info.id2layerNum[nv] > cAlayer)
                         {
-
                             unVisitedSet[v].push_back(nv);
-
                             slIN_temp.push_back(nv);
                             tempUnexplor_inNum++;
                         }
@@ -1519,14 +1252,17 @@ bool computeFollower(int cA)
                 {
                     unVisitedSet[v].clear();
                     isTempFollowerSet[v] = -2;
+
                     deleteF(slOUT_temp, slIN_temp);
 
                     while (!deleteUnavlueFollower.empty())
                     {
                         int vF = deleteUnavlueFollower.front();
                         deleteUnavlueFollower.pop();
+
                         int vFOrder = deleteUnavlueFollowerLoca.front();
                         deleteUnavlueFollowerLoca.pop();
+
                         deleteF(slOUT[vFOrder], slIN[vFOrder]);
                         slOUT[vFOrder].clear();
                         slIN[vFOrder].clear();
@@ -1544,7 +1280,6 @@ bool computeFollower(int cA)
 
 void initializeItem()
 {
-
     std::fill(inCoreStorageInitKInitL.begin(), inCoreStorageInitKInitL.end(), true);
     std::fill(inCoreStorageMaxKMaxL.begin(), inCoreStorageMaxKMaxL.end(), true);
     std::fill(tempInitialOutDegree_init.begin(), tempInitialOutDegree_init.end(), 0);
@@ -1572,41 +1307,41 @@ void initializeItem()
 
     cA_cAoutNV.clear();
 }
+
 int main(int argc, char *argv[])
 {
-    struct rusage usage;
 
-    const string filename = string(argv[1]);
+    const string filename = string(argv[1]) + ".txt";
 
     double begin_time = clock();
     readGraphFromFile(filename, nodeMapping);
     double end_time = clock();
     int follower_size = 0;
     cout << "finish reading graph, time: " << (end_time - begin_time) / CLOCKS_PER_SEC << endl;
-    std::ofstream outfile("output.txt", std::ios::app);
+    std::ofstream outfile("fad_" + string(argv[1]) + ".txt", std::ios::app);
     if (!outfile.is_open())
     {
-        std::cout << "File creation failed!" << std::endl;
+        std::cout << "文件创建失败" << std::endl;
     }
     auto now = std::chrono::system_clock::now();
     std::time_t now_time = std::chrono::system_clock::to_time_t(now);
     string dataName = string(argv[1]);
 
-    maxK = 10;
-    maxL = 10;
-    int bmax = 10;
+    maxK = stoi(argv[2]);
+    maxL = stoi(argv[3]);
+    int bmax = stoi(argv[4]);
     b = bmax;
     initK = max(maxK - 1, 0);
     initL = max(maxL - 1, 0);
     n = G.V;
     m = G.edgeNum;
-    cout << "Number of vertices：" << n << " Number of edges：" << m << endl;
+    cout << "点数：" << n << " 边数：" << m << endl;
     anchor_tag.resize(G.V, false);
     isAffected.resize(G.V, false);
     k_1shell.resize(G.V, false);
     l_1shell.resize(G.V, false);
     double begin_time1 = clock();
-    outfile << "----------------------------FAD----------------------------" << endl;
+    outfile << "----------------------------FAD算法----------------------------" << endl;
     outfile << "\t\t\t\t\t\t" << std::ctime(&now_time) << endl;
     outfile << "数据集：" << filename << endl;
     outfile << "节点数：\t" << n << endl;
@@ -1627,12 +1362,10 @@ int main(int argc, char *argv[])
 
     while (b--)
     {
-
         cout << "-------------剩余次数:" << b << "---------------" << endl;
 
         if (maxCA == -1)
         {
-
             cout << "第一次锚定呀" << endl;
             previousAnchoredNode_inSHell = false;
         }
@@ -1645,8 +1378,7 @@ int main(int argc, char *argv[])
             previous_cAnchore_Set.clear();
             dsuPrevious.clear();
             previous_cA_cAoutNV.clear();
-            cout
-                << "锚定的是内部的节点呀" << endl;
+            cout << "锚定的是内部的节点呀" << endl;
             previousAnchoredNode_inSHell = true;
             previous_cA_MaxFNum_Set = cA_MaxFNum_Set;
             previous_cA_upper_Set = cA_upper_Set;
@@ -1660,7 +1392,6 @@ int main(int argc, char *argv[])
         }
         else
         {
-
             previous_cA_MaxFNum_Set.clear();
             previous_cA_upper_Set.clear();
             previous_cA_Nv_set.clear();
@@ -1689,17 +1420,7 @@ int main(int argc, char *argv[])
         double t1 = clock();
         bliudSC();
         inCoreStoragePrevi = inCoreStorageMaxKMaxL;
-
-        outfile << "kl-core：\t";
-        int count = 0;
-        for (int i = 0; i < G.V; i++)
-        {
-            if (inCoreStorageMaxKMaxL[i])
-            {
-                count++;
-            }
-        }
-        outfile << count << endl;
+        bool flag = false;
         if (orderKL.size() == 0)
         {
             cout << "随便选个点添加咯。" << endl;
@@ -1707,7 +1428,7 @@ int main(int argc, char *argv[])
             {
                 if (!inCoreStorageMaxKMaxL[i])
                 {
-
+                    flag=true;
                     maxCA = i;
                     cout << "随便选个点添加咯。" << endl;
                     break;
@@ -1716,7 +1437,6 @@ int main(int argc, char *argv[])
         }
         else
         {
-
             double t2 = clock();
             cout << "计算k-core的时间：Elapsed time:\t" << (t2 - t1) / CLOCKS_PER_SEC << " s" << std::endl;
             KL_1_SUM = shell_KL_1_info.delete_shell_order.size();
@@ -1734,27 +1454,21 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < cAnchore_Set.size(); i++)
             {
-
                 tempCanFollSize = cA_MaxFNum_Set[i];
-
                 cF_num_to_ver[tempCanFollSize].push_back(cAnchore_Set[i]);
             }
 
-            double t7 = clock();
-            cout << "计算排序：Elapsed time:\t" << (t7 - t3) / CLOCKS_PER_SEC << " s" << std::endl;
-
+            double t4 = clock();
+            cout << "计算排序：Elapsed time:\t" << (t4 - t3) / CLOCKS_PER_SEC << " s" << std::endl;
             int cot = 0;
             int dian = 0;
             vector<int> tempSet;
             while (remainFollSum)
             {
-
                 if (max_FollowerNum < remainFollSum)
                 {
-
                     for (auto cA : cF_num_to_ver[remainFollSum])
                     {
-
                         if (isVisitedF[cA])
                         {
                             continue;
@@ -1766,16 +1480,13 @@ int main(int argc, char *argv[])
                             int sizeN = it->second.size();
                             if (sizeN > max_FollowerNum)
                             {
-
                                 maxCA = cA;
                                 max_F_real_set = it->second;
                                 max_FollowerNum = sizeN - 1;
 
                                 if (sizeN >= remainFollSum)
                                 {
-
                                     previous_Anchore_Follow.erase(cA);
-
                                     break;
                                 }
 
@@ -1784,7 +1495,6 @@ int main(int argc, char *argv[])
                                     isVisitedF[v] = true;
                                 }
                             }
-
                             continue;
                         }
 
@@ -1792,7 +1502,6 @@ int main(int argc, char *argv[])
 
                         if (computeFollower(cA))
                         {
-
                             dian += tempFollowerSet.size();
                             tempSet.clear();
                             for (auto v : tempFollowerSet)
@@ -1800,7 +1509,6 @@ int main(int argc, char *argv[])
                                 if (isTempFollowerSet[v] > -1)
                                 {
                                     tempSet.push_back(v);
-
                                     if (!isVisitedF[v])
                                     {
                                         isVisitedF[v] = true;
@@ -1809,21 +1517,17 @@ int main(int argc, char *argv[])
                             }
                             if (shell_KL_1_info.delete_info_isTrue[cA])
                             {
-
                                 previous_Anchore_Follow.insert({cA, tempSet});
                             }
                             if (max_FollowerNum < temp_FollowerNum)
                             {
                                 max_F_real_set.clear();
-
                                 maxCA = cA;
                                 max_FollowerNum = temp_FollowerNum;
-
                                 max_F_real_set = tempSet;
 
                                 if (max_FollowerNum >= remainFollSum)
                                 {
-
                                     break;
                                 }
                             }
@@ -1832,62 +1536,40 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-
                     break;
                 }
                 remainFollSum--;
             }
             cout << "计算锚点的追随者次数：" << cot << endl;
             cout << "遍历追随者点数：" << dian << endl;
-
             if (max_FollowerNum == -1)
             {
                 max_F_real_set.clear();
-
                 maxFollowerSetState.clear();
-
                 maxCA = shell_KL_1_info.delete_shell_order[KL_1_SUM - 1];
                 anchor_tag[maxCA] = true;
-
                 isAffected[maxCA] = true;
                 maxFollowerSetState.push_back(maxCA);
                 max_FollowerNum = 0;
                 max_F_real_set.push_back(maxCA);
                 cout << "---呦吼,没有随机挑选，所以肯定存在出入，莫要在意，  是对的" << endl;
             }
-            double t4 = clock();
-            cout << "计算锚点时间：Elapsed time:\t" << (t4 - t3) / CLOCKS_PER_SEC << " s" << std::endl;
-            cout << "\n\n";
-            cout << "@@@锚点：" << reverseMapping.at(maxCA) << "跟随者数量：" << max_F_real_set.size() << " 跟随者：";
-            follower_size += max_FollowerNum;
-            for (auto v : max_F_real_set)
-            {
-                isAffected[v] = true;
-                cout << reverseMapping.at(v) << " ";
-            }
-            cout << endl;
 
             int rootMaxCA = shell_KL_1_info.dsu.find(maxCA);
-
             int outvorder = outNVnode2orderSet.at(maxCA);
             if (outvorder >= orderKL.size())
             {
-
                 std::fill(dsustate.begin(), dsustate.end(), false);
                 dsuRootSetOut.clear();
                 int root;
 
                 for (auto upV : cA_Nv_set[outvorder])
                 {
-
                     root = shell_KL_1_info.dsu.find(upV);
-
                     if (!dsustate[root])
                     {
-
                         dsustate[root] = true;
                         dsuRootSetOut.push_back(root);
-
                         for (auto vdsu : shell_KL_1_info.dsu.parentToChildren[root])
                         {
                             previous_Anchore_Follow.erase(vdsu);
@@ -1903,10 +1585,25 @@ int main(int argc, char *argv[])
                     previous_Anchore_Follow.erase(vdsu);
                 }
             }
+
+            double t5 = clock();
+            cout << "计算锚点时间：Elapsed time:\t" << (t5 - t4) / CLOCKS_PER_SEC << " s" << std::endl;
+            cout << "\n\n";
+            cout << "@@@锚点：" << reverseMapping.at(maxCA) << "跟随者数量：" << max_F_real_set.size() << " 跟随者：";
+            follower_size += max_FollowerNum;
+            for (auto v : max_F_real_set)
+            {
+                isAffected[v] = true;
+                cout << reverseMapping.at(v) << " ";
+            }
+            cout << endl;
         }
 
+        if (flag==false){
+            outfile << "所有顶点已在("<<maxK<<","<<maxL<<")-core中" << endl;
+            break;
+        }
         anchor_tag[maxCA] = true;
-
         end_time = clock();
 
         outfile << "b：\t" << bmax - b << endl;
@@ -1914,6 +1611,7 @@ int main(int argc, char *argv[])
         outfile << "follower：\t" << follower_size << endl;
         double end_time1 = clock();
         outfile << "计算锚定的时间：Elapsed time:\t" << (end_time1 - begin_time1) / CLOCKS_PER_SEC << " s" << std::endl;
+        
     }
 
     double end_time1 = clock();
@@ -1921,5 +1619,6 @@ int main(int argc, char *argv[])
     cout << "\n\n";
     outfile << "程序结束\n\n";
     outfile.close();
+
     return 0;
 }
