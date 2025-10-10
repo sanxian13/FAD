@@ -12,10 +12,10 @@ g++ -O3 fad.cpp -o fad
 ## 2. Execution
 Run the compiled executable with the dataset file as a parameter:
 ```bash
-./fad [dataset.txt]
+./fad [dataset.txt] [k] [l] [b]
 ```
 Replace `[dataset.txt]` with your input graph file (e.g., `web-Google.txt`).
-
+Replace `k l b` with appropriate parameters for your dataset (e.g., `5 5 10` for small graphs, or `20 20 30` for large graphs).
 ## 3. Input Format
 The dataset file should be a **directed graph** in plain text format, where each line represents an edge:
 ```
@@ -29,7 +29,7 @@ Example:
 ```
 
 ## 4. Output
-The program will output the detected anchored maximum communities.  
+The program will output the anchor node selected in each greedy iteration along with the number of followers. 
 
 ## 5. Dependencies
 - C++11 or later
