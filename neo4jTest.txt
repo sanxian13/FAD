@@ -19,6 +19,8 @@ MERGE (n:Node {id: toInteger(row.id)})
 SET n.kl = coalesce(n.kl, []) + [trim(toString(row.k)) + "_" + trim(toString(row.l))];
 
 
+
+
 //查询图中满足(1,4)-core的节点
 MATCH (n:Node)-[r:LINK]->(m:Node)
 WHERE "1_4" IN n.kl AND "1_4" IN m.kl
@@ -26,39 +28,43 @@ RETURN n, r, m;
 
 
 ---------------------------
-// Step 1: 载入 CSV 文件
+
 LOAD CSV WITH HEADERS FROM 'file:///AF.csv' AS row
+WITH row WHERE row.type IN ['anchor','follower'] AND row.id_list IS NOT NULL
 
-// Step 2: 按类型分类读取
-WITH row
-WHERE row.type CONTAINS 'anchor' OR row.type CONTAINS 'follower'
-
-// Step 3: 聚合 anchor 和 follower
-WITH collect(CASE WHEN row.type CONTAINS 'anchor' THEN row.id_list END)[0] AS anchorId,
-     collect(CASE WHEN row.type CONTAINS 'follower' THEN row.id_list END)[0] AS followerList
-
-// Step 4: 处理 anchor
+WITH collect(CASE WHEN row.type = 'anchor' THEN row.id_list END)[0]           AS anchorId,
+     collect(CASE WHEN row.type = 'follower' THEN row.id_list END)[0]         AS followerList
 WITH toInteger(anchorId) AS anchorId, split(followerList, ' ') AS followers
-MATCH (a:Node {id: anchorId})
-SET a.role = 'anchor',
-    a.color = '#FF0000'
 
-// Step 5: 处理 followers
+MATCH (a:Node {id: anchorId})
+SET a.role = 'anchor'
 WITH a, followers
 UNWIND followers AS fid
-MATCH (f:Node {id: toInteger(fid)})
-SET f.role = 'follower',
-    f.color = '#0000FF'
+WITH a, toInteger(fid) AS fid WHERE fid IS NOT NULL
+MATCH (f:Node {id: fid})
+SET f.role = 'follower'
+MERGE (a)-[:FOLLOW]->(f);
 
-// Step 6: 创建关系（可选）
-MERGE (a)-[:FOLLOW]->(f)
-RETURN a.id AS anchor, collect(f.id) AS followers;
 
 
 -----------------
 //验证跟随者和节点直接的关系
 MATCH (a:Node {role: 'anchor'})-[r:FOLLOW]->(f:Node {role: 'follower'})
 RETURN a.id AS anchor, collect(f.id) AS followers;
+
+
+
+//添加颜色
+// 基础唯一约束（建议）
+CREATE CONSTRAINT node_id IF NOT EXISTS FOR (n:Node) REQUIRE n.id IS UNIQUE;
+
+// 根据已有属性加标签
+MATCH (a:Node) WHERE a.role = 'anchor'    SET a:Anchor;
+MATCH (f:Node) WHERE f.role = 'follower'  SET f:Follower;
+MATCH (n:Node) WHERE "1_4" IN n.kl        SET n:KL_1_4;
+
+:style reset
+
 
 
 
